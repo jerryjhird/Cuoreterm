@@ -1,0 +1,1 @@
+### All code in this repo is licensed under the Mozilla Public License Version 2.0
