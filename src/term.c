@@ -144,10 +144,10 @@ void cuoreterm_draw_char(
     }
 }
 
-void cuoreterm_write(void *ctx, const char *msg, uint32_t len) {
+void cuoreterm_write(void *ctx, const char *msg, uint64_t len) {
     struct terminal *term = (struct terminal *)ctx;
 
-    for (uint32_t i = 0; i < len; i++) {
+    for (uint64_t i = 0; i < len; i++) {
         char c = msg[i];
 
         if (c == '\n') {

@@ -29,7 +29,7 @@ void cuoreterm_init(
     uint32_t fb_bpp
 );
 
-void cuoreterm_write(void *ctx, const char *msg, uint32_t len);
+void cuoreterm_write(void *ctx, const char *msg, uint64_t len);
 void cuoreterm_draw_char(
     struct terminal *term,
     char c,
