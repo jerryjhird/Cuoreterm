@@ -188,21 +188,21 @@ void handle_ansi(struct terminal * term, char **p_c, int *i)
     uint8_t col = 0;
     char *c = *p_c;
     if (*c <= '0' || *c >= '9') {
-        c++;
-        i++;
+        *p_c++;
+        *i++;
         return;
     }
     where = *c++ - 0x30;
 
     if (*c >= '0' && *c <= '9') {
         col += *c++ - 0x30;
-        i++;
+        *i++;
     }
 
     if (where == 3) {
-        ansi_to_rgb((uint32_t *)&(term->bgcol), col);
-    } else if (where == 4) {
         ansi_to_rgb((uint32_t *)&(term->fgcol), col);
+    } else if (where == 4) {
+        ansi_to_rgb((uint32_t *)&(term->bgcol), col);
     } else if (where == 0) {
         term->fgcol = 0xFFFFFFFF;
         term->bgcol = 0xFF000000;
