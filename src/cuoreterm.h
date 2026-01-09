@@ -19,23 +19,9 @@ struct terminal {
     uint32_t cols;
     uint32_t rows;
 
-    uint32_t fgcol;
-    uint32_t bgcol;
-
     const uint8_t *font_data; // pointer to PSF font
     uint32_t font_width;
     uint32_t font_height;
-};
-
-enum {
-    ANSI_BLACK = 0,
-    ANSI_RED = 1,
-    ANSI_GREEN = 2,
-    ANSI_YELLOW = 3,
-    ANSI_BLUE = 4,
-    ANSI_PURPLE = 5,
-    ANSI_CYAN = 6,
-    ANSI_WHITE = 7
 };
 
 void cuoreterm_init(
