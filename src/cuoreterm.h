@@ -14,14 +14,24 @@ struct terminal {
     uint32_t fb_pitch;
     uint32_t fb_bpp;
 
+    // color masks (from Limine)
+    uint8_t red_shift;
+    uint8_t green_shift;
+    uint8_t blue_shift;
+    uint8_t red_size;
+    uint8_t green_size;
+    uint8_t blue_size;
+
+    uint32_t fgcol;
+
     uint32_t cursor_x;
     uint32_t cursor_y;
-    uint32_t cols;
-    uint32_t rows;
 
-    const uint8_t *font_data; // pointer to PSF font
+    const uint8_t *font_data;
     uint32_t font_width;
     uint32_t font_height;
+    uint32_t cols;
+    uint32_t rows;
 };
 
 void cuoreterm_init(
@@ -31,6 +41,8 @@ void cuoreterm_init(
     uint32_t fb_height,
     uint32_t fb_pitch,
     uint32_t fb_bpp,
+    uint8_t r_shift, uint8_t g_shift, uint8_t b_shift,
+    uint8_t r_size,  uint8_t g_size,  uint8_t b_size,
     const uint8_t *font,
     uint32_t font_w,
     uint32_t font_h
@@ -40,8 +52,7 @@ void cuoreterm_write(void *ctx, const char *msg, uint64_t len);
 void cuoreterm_draw_char(
     struct terminal *term,
     char c,
-    uint32_t fg,
-    uint32_t bg
+    uint32_t fg
 );
 
 void cuoreterm_set_font(
