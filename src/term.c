@@ -87,6 +87,9 @@ void cuoreterm_init(
     term->fb_pitch  = fb_pitch;
     term->fb_bpp    = fb_bpp;
 
+    term->fgcol = 0xFFFFFFFF;
+    term->bgcol = 0x000000FF;
+
     term->cursor_x = 0;
     term->cursor_y = 0;
     term->font_data   = font;
@@ -147,10 +150,77 @@ void cuoreterm_draw_char(
     }
 }
 
+void ansi_to_rgb(uint32_t *col, uint8_t ansi)
+{
+    // hope i got the colors right
+    switch (ansi) {
+        case ANSI_RED:
+            *col = 0xFFFF0000;
+            break;
+        case ANSI_GREEN:
+            *col = 0xFF00FF00;
+            break;
+        case ANSI_YELLOW:
+            *col = 0xFFFFFF00;
+            break;
+        case ANSI_BLUE:
+            *col = 0xFF0000FF;
+            break;
+        case ANSI_PURPLE:
+            *col = 0xFFFF00FF;
+            break;
+        case ANSI_CYAN:
+            *col = 0xFF00FFFF;
+            break;
+        case ANSI_WHITE:
+            *col = 0xFFFFFFFF;
+            break;
+        case ANSI_BLACK:
+        default:
+            *col = 0xFFFFFFFF;
+            break;
+    }
+}
+
+void handle_ansi(struct terminal * term, char **p_c, int *i)
+{
+    int where = 0;
+    uint8_t col = 0;
+    char *c = *p_c;
+    if (*c <= '0' || *c >= '9') {
+        c++;
+        i++;
+        return;
+    }
+    where = *c++ - 0x30;
+
+    if (*c >= '0' && *c <= '9') {
+        col += *c++ - 0x30;
+        i++;
+    }
+
+    if (where == 3) {
+        ansi_to_rgb((uint32_t *)&(term->bgcol), col);
+    } else if (where == 4) {
+        ansi_to_rgb((uint32_t *)&(term->fgcol), col);
+    } else if (where == 0) {
+        term->fgcol = 0xFFFFFFFF;
+        term->bgcol = 0xFF000000;
+    }
+
+    // this technically allows '\x1b[30;30;30;30;30;30;30;30;30m' but whatever
+    if (*c == ';') {
+        handle_ansi(term, c, i);
+    }
+}
+
 void cuoreterm_write(void *ctx, const char *msg, uint64_t len) {
     struct terminal *term = (struct terminal *)ctx;
-
-    for (uint64_t i = 0; i < len; i++) {
+    
+    char *p_c = msg;
+    int i = 0;
+    
+    for (int i = 0; i < len; i++, p_c++) {
         char c = msg[i];
 
         if (c == '\n') {
@@ -184,6 +254,12 @@ void cuoreterm_write(void *ctx, const char *msg, uint64_t len) {
                 0x00FFFFFF,   // fg
                 0x00000000    // bg
             );
+        }
+        else if (c == '\x1b') {
+            p_c += 2;
+            i += 2;
+
+            handle_ansi(term, &p_c, &i);
         }
         else {
             cuoreterm_draw_char(
